@@ -1,0 +1,148 @@
+tic
+for Vx=30:-2:14
+
+matlabpool close force local
+pause(0.1);
+matlabpool 
+clear all
+d = 1;
+LM = [15.3408,16.2173,20.1895,20.8322,24.5774];
+LS = [5.4829,3.8156,6.2199,4.7574,4.6362];
+% LX = [15, 16.5, 18.6, 21.3, 22.65];
+% LG = [3.7, 2.9, 4.3, 3.85,3.63];
+
+
+Vxmin=26;
+Vstep=30;
+Trials=4
+NPgridrows=14
+grids=4 %how many grids to generate
+
+
+
+SmeG = zeros(grids,5);
+HmeG = zeros(grids,5);
+SmeGStd = zeros(grids,5);
+HmeGStd = zeros(grids,5);
+SmeGG = zeros(grids,5);
+HmeGG = zeros(grids,5);
+SmeGGStd = zeros(grids,5);
+HmeGGStd = zeros(grids,5);
+%d = d + 1;
+
+%for Vx=Vxmin:Vstep:30
+%Vx=Vxmin
+for ngrd=1:grids
+    for j = 1:5
+        
+
+         [na,SmeGG(ngrd,j),HmeGG(ngrd,j),Atilde, SmeGGStd(ngrd,j), HmeGGStd(ngrd,j)] = RandlGMPGCM(NPgridrows,298,LM(j),25.5,17,LS(j),10.1,1.47,.98,.017,Vx,Trials);
+         
+         %SmeGG(1,j);
+         %HmeGG(1,j);
+         [na,SmeG(ngrd,j),HmeG(ngrd,j),Atilde2, SmeGStd(ngrd,j), HmeGStd(ngrd,j)] = RandlLoopCM(NPgridrows,298,LM(j),LS(j),.017,Vx,Trials);
+         
+         %SmeG(1,j);
+         %HmeG(1,j);
+    end
+end
+%    d = d + 1;
+
+HNGG = HmeGG./SmeGG;
+HNG = HmeG./SmeG;
+%%
+CNG = HNGG./HNG;
+CNGs = std(HNGG./HNG);
+
+timelapse=toc;
+%%
+output=struct('SmeGG', SmeGG,'HmeGG',HmeGG,'SmeGGStd', SmeGGStd,'HmeGGStd',HmeGGStd,'SmeG',SmeG,'HmeG',HmeG,'SmeGStd',SmeGStd,'HmeGStd',HmeGStd,'HNGG',HNGG,'HNG',HNG,'CNG',CNG,'CNGs',CNGs);
+
+path='D:\MonteCarlo\';
+filename='RandRunLG_CM';
+Dn=dir(path);
+Dnum=length(Dn);
+savetime=strcat(date,'_',num2str(Dnum+1)); %helps prevent overwrites
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'Vx','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), Vx,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'timelapse','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), timelapse,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'NPgridrows','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), NPgridrows,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'Trials','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), Trials,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'SmeGG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.SmeGG,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HmeGG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HmeGG,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'SmeGGStd','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.SmeGGStd,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HmeGGStd','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HmeGGStd,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'SmeG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.SmeG,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HmeG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HmeG,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'SmeGStd','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.SmeGStd,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HmeGStd','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HmeGStd,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HNGG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HNGG,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'HNG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.HNG,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'CNG','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.CNG,'-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), 'CNGs','-append','delimiter',',', 'precision',10,'newline','pc');
+dlmwrite(strcat(path,filename,savetime,'.txt'), output.CNGs,'-append','delimiter',',', 'precision',10,'newline','pc');
+
+%%
+colorz=[0,0,0];
+for k=1:grids
+    colorz(k,:)=[0,0.18*k,0.18*k];
+end
+figure('Position',[100, 100, 1200, 500]);
+hold on
+for m=1:grids %:Vstep:30
+    
+    subplot(1,3,1)
+    hold on
+    semilogy(LM(1:5),HNGG(m,:),'-o', 'Color',colorz(m,:))
+    
+    subplot(1,3,2)
+    hold on
+    semilogy(LM(1:5),HNG(m,:),'-o', 'Color',colorz(m,:))
+end
+%%
+title(strcat('Normalized Average Successful Hops over ',num2str(Trials),' Trials Averaging over ',num2str(grids),' Grids; toc=',num2str(timelapse)));
+subplot(1,3,1)
+xlabel 'Mean Length Angstroms'
+ylabel 'Normalized Successful Hops'
+legend('HNGG, darker = smaller Vx');
+set (gca, 'yscale','log')
+subplot(1,3,2)
+xlabel 'Mean Length Angstroms'
+ylabel 'Normalized Successful Hops'
+legend('HNG, darker = smaller Vx');
+set (gca, 'yscale','log')
+subplot(1,3,3)
+semilogy(LM,CNG)
+xlabel('Mean Length Angstroms');
+ylabel('CNG - PTCDI/Alkane');
+
+%legend('PTCDI Transport Normalized to Alkane Using Normal Distribution for Length','PTCDI Transport Normalized to Alkane Using Lorentz Distribution for Length')
+
+saveas(gca,strcat(path,mfilename,savetime,'.fig'), 'fig');
+matlabpool close
+
+end
+toc
