@@ -100,26 +100,26 @@ end
 
 %----------------------------------
 % Modified by Jon on 6/2/2018
-%Amplification string to indicate transimpedance amplifier gain configuration.
+%Amplification string to indicate current amplifier gain configuration.
 %To be included in plot titles.
-amp_str = sprintf('Amplifier Gain: %0.0e A/V', amp);
+amp_str = sprintf({'Current Amplifier Gain: %0.0e A/V', amp);
 
 %Plot Figures
 
 figure(unfiltered);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+title(amp_str); xlabel('Voltage (V)'); ylabel('Current (A)');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Unfiltered','.png'), 'png');
 
 figure(moving_average);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+title(amp_str); xlabel('Voltage (V)'); ylabel('Current (A)');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Moving_Average_Filtered','.png'), 'png');
 
 figure(envelope_mean);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+title(amp_str); xlabel('Voltage (V)'); ylabel('Current (A)');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Envelope_Mean_Filtered','.png'), 'png');
 
 figure(savitzky_golay);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+title(amp_str); xlabel('Voltage (V)'); ylabel('Current (A)');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Savitzky-Golay_Filtered','.png'), 'png');
 %----------------------------------
 
