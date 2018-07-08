@@ -23,15 +23,16 @@ sz=size(filename,2); %assumes format filename_01.lvm, 1 any number
 
 %% Initialize Values
 
-% Thermoelectric Voltage Amplifier Gain (Channel 1)
-Ch1amp = (1/1020); %this amplification is 1/gain
-%Ch1 amplifier gain setting is typically (1/1020), must match feedback resistor gain configuration in differential amplifier
+% Thermoelectric Voltage Differential Amplifier 1/Gain (Channel 1)
+Ch1amp = (1/1020); %this amplification coefficient is 1/gain
+%Ch1amp is typically (1/1020) for a gain of ~1000, must match gain configuration in differential amplifier
 %make Ch1amp positive if heater is above the electrodes (HA)
 %make Ch1amp negative if heater is below the electrodes (HB)
 
-% Heater Current Amplifier Gain (Channel 2)
-Ch2amp = -1E-3; %this assumes the Amps output of heater is into an amplifier outputting volts into Ch2
-%Ch2 amplifier gain is typically either -1E-2 or -1E-3, must match feedback resistor gain configuration in transimpedance amplifier
+% Heater Current Transimpedance Amplifier 1/Gain (Channel 2)
+Ch2amp = (1/-1E3); %this amplification coefficient is 1/gain, this assumes the Amps output of heater is into a transimpedance amplifier outputting volts into Ch2
+%Ch2amp is typically either (1/-1E2) or (1/-1E3), must match gain configuration in transimpedance amplifier
+%Ch2amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 
 % DC RTD Calibration [Kelvin/Watt] (last calibrated 2017-08-04)
 SCHPN = 3.59763; % (previous calibration: SCHPN = 1.997729)
@@ -94,19 +95,24 @@ end
 %% Plotting Section
 %colors=['r', 'b','y','m','c','r','g','b','k','y','m','c','r','g','b','k'];
 
-figure('NumberTitle', 'off', 'Name', strcat(filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC_newSCHPN2'), 'pos', [350 50 950 700])
+% Figure Window Title
+figure('NumberTitle', 'off', 'Name', strcat(filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC'), 'pos', [350 50 950 700])
 
 % Thermoelectric Voltage vs. Time
 subplot(2,2,1)
 xax=[1:count-1];
 plot(xax, valarr(:,3));
-title({'','Thermoelectric Voltage vs. Time'});
+set(gca,'FontSize',11.5);
+title({'','Thermoelectric Voltage vs. Time'}, ...
+    'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel('Time [~Minutes]'); ylabel('\DeltaV [V]');
 
 % No Zero Normalization
 subplot(2,2,2)
 errorbar(valarr(:,2), valarr(:,3), valarr(:,4), 'bs');
-title({'','No Zero Normalization'});
+set(gca,'FontSize',11.5);
+title({'','No Zero Normalization'}, ...
+    'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel('\DeltaT [K]'); ylabel('\DeltaV [V]');
 cf2=fit(valarr(:,2), valarr(:,3), 'poly1'); %Seebeck coefficient calculation
 seeb2=num2str(-cf2.p1); %Seebeck coefficient string
@@ -115,7 +121,9 @@ legend({['S = ',seeb2]},'FontSize',12);
 % Preceding Zero Subtraction
 subplot(2,2,3)
 errorbar(valarr(:,2), valarr(:,5), valarr(:,4), 'bs');
-title('Preceding Zero Subtraction');
+set(gca,'FontSize',11);
+title('Preceding Zero Subtraction', ...
+    'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel({'\DeltaT [K]',''}); ylabel('\DeltaV [V]');
 cf3=fit(valarr(:,2), valarr(:,5), 'poly1'); %Seebeck coefficient calculation
 seeb3=num2str(-cf3.p1); %Seebeck coefficient string
@@ -124,7 +132,9 @@ legend({['S = ',seeb3]},'FontSize',12);
 % Rolling Average Zero Subtraction
 subplot(2,2,4)
 errorbar(valarr(:,2), valarr(:,7), valarr(:,4), 'bs');
-title('Rolling Average Zero Subtraction');
+set(gca,'FontSize',11);
+title('Rolling Average Zero Subtraction', ...
+    'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel({'\DeltaT [K]',''}); ylabel('\DeltaV [V]');
 cf4=fit(valarr(:,2), valarr(:,7), 'poly1'); %Seebeck coefficient calculation
 seeb4=num2str(-cf4.p1); %Seebeck coefficient string
@@ -137,17 +147,20 @@ annotation('textbox', [0 0.90 1 0.1], ...
     'EdgeColor', 'none', 'HorizontalAlignment', 'center');
 
 % Figure Footing
-annotation('textbox', [0 0 1 0.05], ...
-    'String', {'Experimental Notes: With Airflow, Heater Current Amp. = ', num2str(Ch2amp), ' A/V']}, ...
-    'FontWeight', 'normal', 'FontSize', 10, ...
+annotation('textbox', [0 0 1 0.04], ...
+    'String', {['With Airflow, ', ...
+    'Thermoelectric Voltage Diff. Amp. Gain = ', num2str(round((1/Ch1amp),1,'significant'),'%10.1e'), ' V/V, ', ...
+    'Heater Current TIA Gain = ', num2str(round((1/Ch2amp),1,'significant'),'%10.1e'), ' V/A, ', ...
+    'DC Heater Voltage']}, ...
+    'FontWeight', 'normal', 'FontSize', 12, ...
     'EdgeColor', 'none', 'HorizontalAlignment', 'center');
 
 %save figure as MATLAB figure and PNG image
-saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC_newSCHPN2.fig'), 'fig');
-saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC_newSCHPN2.png'), 'png');
+saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC.fig'), 'fig');
+saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC.png'), 'png');
 
 %% Save Excel File
-xcelfile=strcat(path,filex(1:sz-4),'_',datestr(now,'yyyy-mm-dd'),'_DC_newSCHPN2.xlsx');
+xcelfile=strcat(path,filex(1:sz-4),'_',datestr(now,'yyyy-mm-dd'),'_DC.xlsx');
 headers={'MeasNum', 'HVpp', 'DT', 'ThermoVMean', 'StDev', 'PrecedZeroSub', 'StDev', '7pt RollingAvg', 'StDev', 'Rheatmeasured'};
 xlswrite(xcelfile, headers,1,'A1');
 pause(0.25);
@@ -159,7 +172,7 @@ xlswrite(xcelfile,namelist,1, 'A2');
 %If file exists, append to the list of Seebeck coefficients
 compilepath = strcat(path, '..\', 'Seebeck coefficients compilation.xlsx');
 
-XLSX_append(compilepath,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC_newSCHPN2.png'), [-cf2.p1 -cf3.p1 -cf4.p1]);
+XLSX_append(compilepath,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_DC.png'), [-cf2.p1 -cf3.p1 -cf4.p1]);
 
 toc %Stop stopwatch timer
 disp('complete');
