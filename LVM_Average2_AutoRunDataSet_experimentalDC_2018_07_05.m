@@ -5,7 +5,7 @@
 % Revised By: Jon Marrs
 
 % Revision History Notes:
-% 2018-07-05: Reformatted figure
+%2018-07-05: Reformatted figure
 %2017-08-04: DC RTD Calibration (SCHPN = 3.59763)
 %2016-08-31: Spatially correct DT power scaling with airflow 1.803 is 6.03
 %2016-07-14: Preceding zero subtraction version, rolling average zero norm
