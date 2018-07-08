@@ -1,9 +1,11 @@
-%% LVM_Average2_AutoRunDataSet_experimentalDC_2018_07_05.m
+% 2018-07-05: Thermoelectric voltage and Seebeck coefficient calfor DC heater voltage. For processing LabVIEW LVM file thermoelectric data obtained with Thermoelectric Chip (TEC).
+
+% LVM_Average2_AutoRunDataSet_experimentalDC_2018_07_05.m
 % Last Revision: 2018-07-05
 % Revised By: Jon Marrs
 
 % Revision History Notes:
-%2018-07-05: Reformatted figure
+% 2018-07-05: Reformatted figure
 %2017-08-04: DC RTD Calibration (SCHPN = 3.59763)
 %2016-08-31: Spatially correct DT power scaling with airflow 1.803 is 6.03
 %2016-07-14: Preceding zero subtraction version, rolling average zero norm
@@ -25,13 +27,13 @@ sz=size(filename,2); %assumes format filename_01.lvm, 1 any number
 
 % Thermoelectric Voltage Differential Amplifier 1/Gain (Channel 1)
 Ch1amp = (1/1020); %this amplification coefficient is 1/gain
-%Ch1amp is typically (1/1020) for a gain of ~1000, must match gain configuration in differential amplifier
+%Ch1amp is typically (1/1020), for a gain of ~1000, must match gain configuration in differential amplifier
 %make Ch1amp positive if heater is above the electrodes (HA)
 %make Ch1amp negative if heater is below the electrodes (HB)
 
 % Heater Current Transimpedance Amplifier 1/Gain (Channel 2)
 Ch2amp = (1/-1E3); %this amplification coefficient is 1/gain, this assumes the Amps output of heater is into a transimpedance amplifier outputting volts into Ch2
-%Ch2amp is typically either (1/-1E2) or (1/-1E3), must match gain configuration in transimpedance amplifier
+%Ch2amp is typically either (1/-1E2) or (1/-1E3), for a gain of -1E2 or -1E3, must match gain configuration in transimpedance amplifier
 %Ch2amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 
 % DC RTD Calibration [Kelvin/Watt] (last calibrated 2017-08-04)
@@ -102,7 +104,7 @@ figure('NumberTitle', 'off', 'Name', strcat(filex(1:length(filex)-4),'_',datestr
 subplot(2,2,1)
 xax=[1:count-1];
 plot(xax, valarr(:,3));
-set(gca,'FontSize',11.5);
+set(gca,'FontSize',11.5); %axis font size
 title({'','Thermoelectric Voltage vs. Time'}, ...
     'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel('Time [~Minutes]'); ylabel('\DeltaV [V]');
@@ -110,34 +112,34 @@ xlabel('Time [~Minutes]'); ylabel('\DeltaV [V]');
 % No Zero Normalization
 subplot(2,2,2)
 errorbar(valarr(:,2), valarr(:,3), valarr(:,4), 'bs');
-set(gca,'FontSize',11.5);
+set(gca,'FontSize',11.5); %axis font size
 title({'','No Zero Normalization'}, ...
     'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel('\DeltaT [K]'); ylabel('\DeltaV [V]');
 cf2=fit(valarr(:,2), valarr(:,3), 'poly1'); %Seebeck coefficient calculation
-seeb2=num2str(-cf2.p1); %Seebeck coefficient string
+seeb2=num2str(-cf2.p1,'%10.2e'); %Seebeck coefficient string
 legend({['S = ',seeb2]},'FontSize',12);
 
 % Preceding Zero Subtraction
 subplot(2,2,3)
 errorbar(valarr(:,2), valarr(:,5), valarr(:,4), 'bs');
-set(gca,'FontSize',11);
+set(gca,'FontSize',11.5); %axis font size
 title('Preceding Zero Subtraction', ...
     'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel({'\DeltaT [K]',''}); ylabel('\DeltaV [V]');
 cf3=fit(valarr(:,2), valarr(:,5), 'poly1'); %Seebeck coefficient calculation
-seeb3=num2str(-cf3.p1); %Seebeck coefficient string
+seeb3=num2str(-cf3.p1,'%10.2e'); %Seebeck coefficient string
 legend({['S = ',seeb3]},'FontSize',12);
 
 % Rolling Average Zero Subtraction
 subplot(2,2,4)
 errorbar(valarr(:,2), valarr(:,7), valarr(:,4), 'bs');
-set(gca,'FontSize',11);
+set(gca,'FontSize',11.5); %axis font size
 title('Rolling Average Zero Subtraction', ...
     'horizontalAlignment','right','units','normalized','position',[1 1]); %right-justify subplot title
 xlabel({'\DeltaT [K]',''}); ylabel('\DeltaV [V]');
 cf4=fit(valarr(:,2), valarr(:,7), 'poly1'); %Seebeck coefficient calculation
-seeb4=num2str(-cf4.p1); %Seebeck coefficient string
+seeb4=num2str(-cf4.p1,'%10.2e'); %Seebeck coefficient string
 legend({['S = ',seeb4]},'FontSize',12);
 
 % Figure Heading
@@ -149,9 +151,9 @@ annotation('textbox', [0 0.90 1 0.1], ...
 % Figure Footing
 annotation('textbox', [0 0 1 0.04], ...
     'String', {['With Airflow, ', ...
+    'DC Heater Voltage, ', ...
     'Thermoelectric Voltage Diff. Amp. Gain = ', num2str(round((1/Ch1amp),1,'significant'),'%10.1e'), ' V/V, ', ...
-    'Heater Current TIA Gain = ', num2str(round((1/Ch2amp),1,'significant'),'%10.1e'), ' V/A, ', ...
-    'DC Heater Voltage']}, ...
+    'Heater Current TIA Gain = ', num2str(round((1/Ch2amp),1,'significant'),'%10.1e'), ' V/A']}, ...
     'FontWeight', 'normal', 'FontSize', 12, ...
     'EdgeColor', 'none', 'HorizontalAlignment', 'center');
 
