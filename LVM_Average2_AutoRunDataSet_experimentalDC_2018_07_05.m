@@ -32,7 +32,7 @@ Ch1amp = (1/1020); %this amplification coefficient is 1/gain
 %make Ch1amp negative if heater is below the electrodes (HB)
 
 % Heater Current Transimpedance Amplifier 1/Gain (Channel 2)
-Ch2amp = (1/-1E3); %this amplification coefficient is 1/gain, this assumes the Amps output of heater is into a transimpedance amplifier outputting volts into Ch2
+Ch2amp = (1/-1E2); %this amplification coefficient is 1/gain, this assumes the Amps output of heater is into a transimpedance amplifier outputting volts into Ch2
 %Ch2amp is typically either (1/-1E2) or (1/-1E3), for a gain of -1E2 or -1E3, must match gain configuration in transimpedance amplifier
 %Ch2amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 

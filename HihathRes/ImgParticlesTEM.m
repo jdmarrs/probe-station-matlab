@@ -7,7 +7,7 @@ imTif = imread(OImg);
 %% need to set for TEM images
 %scalecrop=imcrop(imTif, [530 883 138 58]);
 imGray=im2uint8(imTif);
-imDesp=medfilt2(imGray, [4 4]); %can use [3 3]
+imDesp=medfilt2(imGray(:,:,1), [4 4]); %can use [3 3]
 
 %imshow(scalecrop);
 %scalein=input('What is image magnification? input: example 1000000 or 1E6. Scale assumes 5.5mm Working Distance  ');
