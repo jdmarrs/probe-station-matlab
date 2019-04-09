@@ -125,16 +125,16 @@ end
 
 % To Do: Calculate average of all individually calculated resistances, and display in legend on plots.
 
-% Calculate Mean (Average) Resistance in Ohms
-resistance_mean = mean(valarr(:, 2));
+% Calculate Mean (Absolute Value) Resistance in Ohms
+resistance_mean = mean(abs(valarr(:, 2)));
 
-% Calculate Mean (Average) Resistance in Megaohms
-%resistance_megaohms_mean = mean(valarr(:, 3));
+% Calculate Mean (Absolute Value) Resistance in Megaohms
+%resistance_megaohms_mean = mean(abs(valarr(:, 3)));
 
-% Determine Excell Cell for Storing Mean (Average) Resistance in Ohms
+% Determine Excell Cell for Storing Mean Resistance in Ohms
 resistance_mean_cell = strcat('C',num2str(valarr_rows+3));
 
-% Determine Excell Cell for Storing Mean (Average) Resistance in Megaohms
+% Determine Excell Cell for Storing Mean Resistance in Megaohms
 %resistance_megaohms_mean_cell = strcat('D',num2str(valarr_rows+3));
 
 % Determine Excell Cell for Writing "Mean" Label
@@ -143,11 +143,11 @@ mean_label_cell = strcat('A',num2str(valarr_rows+3));
 
 % To Do: Calculate standard deviation of all individually calculated resistances, and display in legend on plots (or at least in Excel).
 
-% Calculate Standard Deviation in Ohms
-resistance_std = std(valarr(:, 2));
+% Calculate Standard Deviation (Absolute Value) of Resistance in Ohms
+resistance_std = std(abs(valarr(:, 2)));
 
-% Calculate Standard Deviation in Megaohms
-%resistance_megaohms_std = std(valarr(:, 3));
+% Calculate Standard Deviation (Absolute Value) of Resistance in Megaohms
+%resistance_megaohms_std = std(abs(valarr(:, 3)));
 
 % Determine Excell Cell for Storing Std Dev of Resistance in Ohms
 resistance_std_cell = strcat('C',num2str(valarr_rows+5));
