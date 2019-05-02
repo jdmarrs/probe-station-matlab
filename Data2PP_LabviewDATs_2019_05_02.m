@@ -1,10 +1,11 @@
-% 2019-04-08: Two-point probe IV sweep data processing and resistance calculation for current and voltage data from Probe Station. For processing LabVIEW DAT file IV sweep data. WARNING: CHECK COLUMN REFERENCES IN DAT FILE!
+% 2019-05-02: Two-point probe IV sweep data processing and resistance calculation for current and voltage data from Probe Station. For processing LabVIEW DAT file IV sweep data. WARNING: CHECK COLUMN REFERENCES IN DAT FILE!
 
-% Data2PP_LabviewDATs_2019_04_08.m
-% Last Revision: 2019-04-08
+% Data2PP_LabviewDATs_2019_05_02.m
+% Last Revision: 2019-05-02
 % Revised By: Jon Marrs
 
 % Revision History Notes:
+%2019-05-02: Reformatted figures to make font size larger for plots and to make axis labels bold.
 %2019-04-08: Implemented mean and std dev for resistance. Export stats to Excel.
 %2018-07-08: Reformatted figure. Renamed variables. Added comments.
 %2018-05-05: Added filtering/averaging of current data.
@@ -31,7 +32,7 @@ sz=size(filename,2); %assumes format filename_01.dat, 1 any number
 %% Initialize Values
 
 % Transimpedance Amplifier 1/Gain
-amp = (1/-1e10); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
+amp = (1/-1e11); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
 %amp is typically between (1/-1e2) and (1/-1e10), for a gain between -1e2 and -1e10, must match gain configuration in transimpedance amplifier
 %amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 
@@ -169,27 +170,31 @@ amp_str = sprintf('Transimpedance Amplifier Gain: %0.0e V/A', 1/amp);
 
 % Unfiltered
 figure(unfiltered);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',18);
+title({amp_str,''},'FontSize',18); xlabel('Voltage (V)','FontSize',20,'FontWeight','Bold'); ylabel('Current (A)','FontSize',20,'FontWeight','Bold');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Unfiltered','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Unfiltered','.png'), 'png');
 
 % Moving Average Filtered
 figure(moving_average);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',18);
+title({amp_str,''},'FontSize',18); xlabel('Voltage (V)','FontSize',20,'FontWeight','Bold'); ylabel('Current (A)','FontSize',20,'FontWeight','Bold');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Moving_Average','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Moving_Average','.png'), 'png');
 close(moving_average);
 
 % Envelope Mean Filtered
 figure(envelope_mean);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',18);
+title({amp_str,''},'FontSize',18); xlabel('Voltage (V)','FontSize',20,'FontWeight','Bold'); ylabel('Current (A)','FontSize',20,'FontWeight','Bold');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Envelope_Mean','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Envelope_Mean','.png'), 'png');
 close(envelope_mean);
 
 % Savitzky-Golay Filtered
 figure(savitzky_golay);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',18);
+title({amp_str,''},'FontSize',18); xlabel('Voltage (V)','FontSize',20,'FontWeight','Bold'); ylabel('Current (A)','FontSize',20,'FontWeight','Bold');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Savitzky-Golay','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Savitzky-Golay','.png'), 'png');
 close(savitzky_golay);

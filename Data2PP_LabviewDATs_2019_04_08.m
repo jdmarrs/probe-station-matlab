@@ -31,7 +31,7 @@ sz=size(filename,2); %assumes format filename_01.dat, 1 any number
 %% Initialize Values
 
 % Transimpedance Amplifier 1/Gain
-amp = (1/-1e10); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
+amp = (1/-1e11); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
 %amp is typically between (1/-1e2) and (1/-1e10), for a gain between -1e2 and -1e10, must match gain configuration in transimpedance amplifier
 %amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 
