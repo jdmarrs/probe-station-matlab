@@ -1,10 +1,13 @@
-% 2019-04-08: Two-point probe IV sweep data processing and resistance calculation for current and voltage data from Probe Station. For processing LabVIEW DAT file IV sweep data. WARNING: CHECK COLUMN REFERENCES IN DAT FILE!
+% 2019-05-14: Two-point probe IV sweep data processing and resistance calculation for current and voltage data from Probe Station. For processing LabVIEW DAT file IV sweep data. WARNING: CHECK COLUMN REFERENCES IN DAT FILE!
 
-% Data2PP_LabviewDATs_2019_04_08.m
-% Last Revision: 2019-04-08
+% Data2PP_LabviewDATs_2019_05_14.m
+% Last Revision: 2019-05-14
 % Revised By: Jon Marrs
 
 % Revision History Notes:
+%2019-05-14: Included resistance in plot titles. Changed figure positions and sizes. Reformatted figures to make font size larger for plots.
+%2019-05-03: Reformatted figures to set the axis limits using the minimums and maximums from the data (Current and Voltage). Change figure positions and sizes.
+%2019-05-02: Reformatted figures to make font size larger for plots and to make axis labels bold.
 %2019-04-08: Implemented mean and std dev for resistance. Export stats to Excel.
 %2018-07-08: Reformatted figure. Renamed variables. Added comments.
 %2018-05-05: Added filtering/averaging of current data.
@@ -31,12 +34,22 @@ sz=size(filename,2); %assumes format filename_01.dat, 1 any number
 %% Initialize Values
 
 % Transimpedance Amplifier 1/Gain
-amp = (1/-1e7); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
+amp = (1/-1e11); %this amplification coefficient is 1/gain, this assumes the Amps output of the device is into a transimpedance amplifier outputting volts into Ch1
 %amp is typically between (1/-1e2) and (1/-1e10), for a gain between -1e2 and -1e10, must match gain configuration in transimpedance amplifier
 %amp should always be negative, since the transimpedance amplifier is an inverting amplifier
 
 valarr=zeros(1, 5, 'double');
 count=1;
+
+% Initialize Variables for Plot Axis Limits Calculation
+Temporary_Voltage_Max = 0;
+Temporary_Voltage_Min = 0;
+Temporary_Current_Max = 0;
+Temporary_Current_Min = 0;
+Voltage_Max = 0;
+Voltage_Min = 0;
+Current_Max = 0;
+Current_Min = 0;
 
 % Create Figures
 unfiltered = figure('Name','Unfiltered');
@@ -80,8 +93,33 @@ for k = 1 : length(allFiles)
 
         %colors=['y','m','c','r','g','b','k','y','m','c','r','g','b','k'];
         figure(unfiltered);
+        set(gcf,'Position',[100 15 900 800]);
         scatter(Voltage,Current, 6, 'b');
         hold on
+
+        %% Plot Bounds Calculation
+        
+        %Calculate the bounds for the X-axis (Voltage).
+        Temporary_Voltage_Max = round(max(Voltage),1); %Round to nearest 100 mV for Maximum Voltage
+        Temporary_Voltage_Min = round(min(Voltage),1); %Round to nearest 100 mV for Minimum Voltage
+
+        if(Temporary_Voltage_Max > Voltage_Max)
+            Voltage_Max = Temporary_Voltage_Max;
+        end    
+        if(Temporary_Voltage_Min < Voltage_Min)
+            Voltage_Min = Temporary_Voltage_Min;
+        end
+        
+        %Calculate the bounds for the Y-axis (Current).
+        Temporary_Current_Max = max(Current); %Maximum Current
+        Temporary_Current_Min = min(Current); %Minimum Current
+
+        if(Temporary_Current_Max > Current_Max)
+            Current_Max = Temporary_Current_Max;
+        end    
+        if(Temporary_Current_Min < Current_Min)
+            Current_Min = Temporary_Current_Min;
+        end
         
         %% Data Filtering/Averaging Section
 
@@ -92,6 +130,7 @@ for k = 1 : length(allFiles)
         a_coeff = 1;
         Current_AVG = filter(b_coeff,a_coeff,Current);
         figure(moving_average);
+        set(gcf,'Position',[100 15 900 800]);
         scatter(Voltage(100:end),Current_AVG(100:end), 6, 'b'); %Don't plot the first 100 data points, since they aren't properly filtered
         hold on
         
@@ -99,6 +138,7 @@ for k = 1 : length(allFiles)
         [Current_envHigh, Current_envLow] = envelope(Current,66,'peak');
         Current_envMean = (Current_envHigh+Current_envLow)/2;
         figure(envelope_mean);
+        set(gcf,'Position',[100 15 900 800]);
         scatter(Voltage, Current_envMean, 6, 'b');
         hold on;
         
@@ -106,6 +146,7 @@ for k = 1 : length(allFiles)
         fs = 2000;  % Number of Samples
         Current_SGolayFiltered = sgolayfilt(Current,1,33);
         figure(savitzky_golay);
+        set(gcf,'Position',[100 15 900 800]);
         scatter(Voltage(33:end-33), Current_SGolayFiltered(33:end-33), 6, 'b');
         hold on;
         
@@ -161,35 +202,51 @@ std_label_cell = strcat('A',num2str(valarr_rows+5));
 
 %% Plotting Section
 
-%Amplification string to indicate transimpedance amplifier gain configuration.
+%Resistance string to indicate average resistance of IV curves.
 %To be included in plot titles.
+resistance_str = sprintf('Resistance = %0.0e Ohms', resistance_mean);
+
+%Amplification string to indicate transimpedance amplifier gain configuration.
+%To be included in plot annotations.
 amp_str = sprintf('Transimpedance Amplifier Gain: %0.0e V/A', 1/amp);
 
 %Plot Figures
 
 % Unfiltered
 figure(unfiltered);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',30);
+set(gca,'XLim',[Voltage_Min Voltage_Max],'YLim',[Current_Min Current_Max]);
+title({resistance_str,''},'FontSize',52); xlabel('Voltage (V)','FontSize',30,'FontWeight','Bold'); ylabel('Current (A)','FontSize',30,'FontWeight','Bold');
+annotation('textbox',[.01 .8 .98 .1],'String',amp_str,'FontSize',30,'FontWeight','Bold','HorizontalAlignment','center','EdgeColor','none');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Unfiltered','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Unfiltered','.png'), 'png');
 
 % Moving Average Filtered
 figure(moving_average);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',30);
+set(gca,'XLim',[Voltage_Min Voltage_Max],'YLim',[Current_Min Current_Max]);
+title({resistance_str,''},'FontSize',52); xlabel('Voltage (V)','FontSize',30,'FontWeight','Bold'); ylabel('Current (A)','FontSize',30,'FontWeight','Bold');
+annotation('textbox',[.01 .8 .98 .1],'String',amp_str,'FontSize',30,'FontWeight','Bold','HorizontalAlignment','center','EdgeColor','none');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Moving_Average','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Moving_Average','.png'), 'png');
 close(moving_average);
 
 % Envelope Mean Filtered
 figure(envelope_mean);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',30);
+set(gca,'XLim',[Voltage_Min Voltage_Max],'YLim',[Current_Min Current_Max]);
+title({resistance_str,''},'FontSize',52); xlabel('Voltage (V)','FontSize',30,'FontWeight','Bold'); ylabel('Current (A)','FontSize',30,'FontWeight','Bold');
+annotation('textbox',[.01 .8 .98 .1],'String',amp_str,'FontSize',30,'FontWeight','Bold','HorizontalAlignment','center','EdgeColor','none');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Envelope_Mean','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Envelope_Mean','.png'), 'png');
 close(envelope_mean);
 
 % Savitzky-Golay Filtered
 figure(savitzky_golay);
-title({amp_str,''}); xlabel('Voltage (V)'); ylabel('Current (A)');
+set(gca,'FontSize',30);
+set(gca,'XLim',[Voltage_Min Voltage_Max],'YLim',[Current_Min Current_Max]);
+title({resistance_str,''},'FontSize',52); xlabel('Voltage (V)','FontSize',30,'FontWeight','Bold'); ylabel('Current (A)','FontSize',30,'FontWeight','Bold');
+annotation('textbox',[.01 .8 .98 .1],'String',amp_str,'FontSize',30,'FontWeight','Bold','HorizontalAlignment','center','EdgeColor','none');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Savitzky-Golay','.fig'), 'fig');
 saveas(gca,strcat(path, filex(1:length(filex)-4),'_',datestr(now,'yyyy-mm-dd'),'_Savitzky-Golay','.png'), 'png');
 close(savitzky_golay);
